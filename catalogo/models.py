@@ -10,3 +10,16 @@ class Herramienta(models.Model):
     def __str__(self):
         return self.nombre
 
+class ConsultaCliente(models.Model):
+    nombre = models.CharField(max_length=100)
+    correo = models.EmailField()
+    mensaje = models.TextField()
+    producto_interes = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+    fecha = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.nombre

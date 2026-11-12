@@ -8,6 +8,7 @@ import json
 from django.http import HttpResponseNotFound
 from pathlib import Path
 from django.shortcuts import render, redirect
+from .forms import ConsultaClienteForm
 
 
 # catalogo/views.py
@@ -67,23 +68,57 @@ def listado_herramientas(request):
         "total": herramientas.count(),
         "disponibles": herramientas.filter(stock__gt=0).count(),
     }
+
+    visitas = request.session.get("visitas", 0)
+    visitas += 1
+    request.session["visitas"] = visitas
+
+    herramientas = Herramienta.objects.all()
+
+    contexto = {
+        "herramientas": herramientas,
+        "total": herramientas.count(),
+        "disponibles": herramientas.filter(stock__gt=0).count(),
+        "visitas": visitas,
+    }
+
     return render(request, "catalogo/lista.html", contexto)
 
 
 def detalle_herramienta(request, id):
     ruta = Path(__file__).resolve().parent / "data" / "herramientas.json"
-    with open(ruta, encoding="utf-8") as f:
-        herramientas = json.load(f) 
 
-    print("Herramientas cargadas:", herramientas[:3])  
-    print("Buscando id:", id)
+    with open(ruta, encoding="utf-8") as f:
+        herramientas = json.load(f)
 
     herramienta = next((h for h in herramientas if h.get("id") == id), None)
 
     if herramienta is None:
         return HttpResponseNotFound("<h2>Herramienta no encontrada</h2>")
 
-    return render(request, "catalogo/detalle.html", {"herramienta": herramienta})
+    ultimos = request.session.get("ultimos_productos", [])
+
+    nombre = herramienta["nombre"]
+
+    if nombre in ultimos:
+        ultimos.remove(nombre)
+
+    ultimos.insert(0, nombre)
+
+    ultimos = ultimos[:3]
+
+    request.session["ultimos_productos"] = ultimos
+
+    return render(
+        request,
+        "catalogo/detalle.html",
+        {
+            "herramienta": herramienta,
+            "ultimos": ultimos
+        }
+    )
+
+#agregar la vista de sesiones entrada y recargas a la pagina
 
 
 def login_view(request):
@@ -172,6 +207,32 @@ def reporte_stock(request):
         "catalogo/reporte_stock.html",
         {"herramientas": herramientas}
     )
+
+#consultadecliente por formulario de contacto
+
+def contacto(request):
+
+    if request.method == "POST":
+
+        form = ConsultaClienteForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+
+            return render(
+                request,
+                "catalogo/contacto_exito.html"
+            )
+
+    else:
+        form = ConsultaClienteForm()
+
+    return render(
+        request,
+        "catalogo/contacto.html",
+        {"form": form}
+    )
+
 
 # Carrito: ver contenido
 

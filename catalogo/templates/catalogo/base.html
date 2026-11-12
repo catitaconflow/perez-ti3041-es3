@@ -426,6 +426,7 @@ footer p::before {
         <h1>Ferretería Online 2</h1>
         <nav>
             <a href="{% url 'herramientas' %}">Listado</a>
+            <a href="{% url 'contacto' %}">Contacto</a>
             <a href="{% url 'login' %}">Login</a>
             <a href="{% url 'ver_carrito' %}">Carrito 🛒</a>
             {% if request.session.es_admin %}<a href="{% url 'logout' %}">Cerrar sesión</a>{% endif %}

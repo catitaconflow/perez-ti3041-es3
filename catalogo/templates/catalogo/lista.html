@@ -192,6 +192,21 @@ table tr[style] {
     </div>
 </div>
     <table>
+        {% if request.session.es_admin %}<p>Visitas al catálogo: {{ visitas }}</p>
+        <hr>
+
+            <h3>Últimos productos vistos</h3>
+
+            <ul>
+                {% for producto in ultimos %}
+                    <li>{{ producto }}</li>
+                {% empty %}
+                    <li>No hay productos vistos aún.</li>
+                {% endfor %}
+            </ul>
+        
+        {% endif %}
+
         <thead>
             <tr>
                 <th>Nombre</th>
@@ -206,6 +221,7 @@ table tr[style] {
                 {% endif %}
             </tr>
         </thead>
+        
 
         <tbody>
             {% for herramienta in herramientas %}
@@ -216,6 +232,7 @@ table tr[style] {
                         {{ herramienta.nombre }}
                     </a>
                 </td>
+                
 
                 <td>{{ herramienta.categoria }}</td>
 
@@ -247,7 +264,10 @@ table tr[style] {
 
                     <a href="{% url 'eliminar_herramienta' herramienta.id %}">
                         🗑️ Eliminar
+
+
                     </a>
+                    
                 </td>
                 {% endif %}
 

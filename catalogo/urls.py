@@ -18,6 +18,7 @@ urlpatterns = [
     path("logout/", views.logout_view, name="logout"),
     path("reporte-categoria/",views.reporte_categoria,name="reporte_categoria"),
     path("reporte-stock/",views.reporte_stock,name="reporte_stock"),
+    path("contacto/",views.contacto,name="contacto"),
     # rutas de detalle y carrito
 ]
 
