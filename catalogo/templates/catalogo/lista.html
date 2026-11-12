@@ -3,200 +3,292 @@
 {% block title %}Listado de Herramientas{% endblock %}
 
 {% block content %}
-<div class="lista-header">
-    <h2>Listado completo de herramientas</h2>
-        {% if request.session.es_admin %}
-        <a href="{% url 'crear_herramienta' %}">
-            ➕ Crear herramienta
-        </a>
-        {% endif %}
-    <style>
-        /* Estilo general para la tabla convertida en grid */
-table {
-    width: 100%;
-    border-collapse: collapse;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
-}
-
-/* Ocultar encabezado de tabla (ya no se usa en cards) */
-table thead {
-    display: none;
-}
-
-/* Cada fila será una card */
-table tbody {
-    display: contents; /* permite que los <tr> se comporten como grid items */
-}
-
-table tr {
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-/* Estilo para las celdas dentro de la card */
-table td {
-    border: none;
-    padding: 5px;
-}
-
-/* Imagen dentro de la card */
-table img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
-    margin-top: 10px;
-}
-
-/* Enlace del nombre */
-table a {
-    font-weight: bold;
-    color: #004080;
-    text-decoration: none;
-}
-
-table a:hover {
-    text-decoration: underline;
-}
-
-/* Card resaltada si no hay stock */
-table tr[style] {
-    background-color: #f8d7da !important;
-}
-
-/* ===== ENCABEZADO DEL LISTADO ===== */
-.lista-header {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-    padding: 1.5rem 2rem;
-    background: linear-gradient(135deg, #f8faff, #eef2f7);
-    border-radius: 16px;
-    border-left: 6px solid #f4b942;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
-}
-
-.lista-header h2 {
-    color: #003c6c;
-    font-size: 1.8rem;
-    font-weight: 800;
-    margin: 0;
-    display: flex;
-    align-items: center;
-    gap: 0.8rem;
-}
-
-.lista-header h2::before {
-    content: "🔧";
-    font-size: 2rem;
-}
-
-.lista-stats {
-    display: flex;
-    gap: 2rem;
-    font-size: 1rem;
-    color: #3d4f62;
-}
-
-.lista-stats span {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: #fff;
-    padding: 0.4rem 1.2rem;
-    border-radius: 50px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e9edf2;
-}
-
-.lista-stats strong {
-    color: #003c6c;
-    font-size: 1.1rem;
-}
-
-.lista-stats .total::before {
-    content: "📊";
-}
-
-.lista-stats .disponibles::before {
-    content: "✅";
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-    .lista-header {
+<style>
+    .catalog-shell {
+        display: flex;
         flex-direction: column;
-        align-items: stretch;
+        gap: 1.5rem;
+    }
+
+    .catalog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         gap: 1rem;
-        padding: 1.2rem;
-        text-align: center;
+        padding: 1.5rem 2rem;
+        background: linear-gradient(135deg, #f8fbff 0%, #edf5ff 100%);
+        border: 1px solid #dfeaf8;
+        border-radius: 20px;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
     }
 
-    .lista-header h2 {
+    .catalog-header h2 {
+        color: var(--primary, #0f172a);
+        font-size: clamp(1.5rem, 2vw, 2rem);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .catalog-header h2::before {
+        content: "🧰";
+        font-size: 1.8rem;
+    }
+
+    .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1d4ed8, #2563eb);
+        color: #fff;
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 0.8rem 1.2rem;
+        box-shadow: 0 10px 18px rgba(37, 99, 235, 0.22);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 22px rgba(37, 99, 235, 0.28);
+    }
+
+    .catalog-stats {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(180px, 1fr));
+        gap: 1rem;
+    }
+
+    .stat-card {
+        background: var(--panel, #fff);
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 1rem 1.2rem;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .stat-card span {
+        color: var(--muted, #64748b);
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .stat-card strong {
         font-size: 1.5rem;
-        justify-content: center;
+        color: var(--primary, #0f172a);
     }
 
-    .lista-stats {
-        justify-content: center;
+    .catalog-panel {
+        background: var(--panel, #fff);
+        border: 1px solid #e2e8f0;
+        border-radius: 18px;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+        padding: 1.25rem 1.5rem;
+    }
+
+    .catalog-panel h3 {
+        margin-bottom: 0.8rem;
+        color: var(--primary, #0f172a);
+        font-size: 1.1rem;
+    }
+
+    .catalog-panel ul {
+        list-style: none;
+        display: flex;
         flex-wrap: wrap;
-        gap: 0.8rem;
+        gap: 0.7rem;
+        margin: 0;
+        padding: 0;
     }
 
-    .lista-stats span {
-        padding: 0.3rem 1rem;
+    .catalog-panel li {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: var(--text, #1f2937);
+        border-radius: 999px;
+        padding: 0.45rem 0.9rem;
         font-size: 0.9rem;
     }
-}
 
-@media (max-width: 480px) {
-    .lista-header {
-        padding: 1rem;
-        border-left-width: 4px;
+    .catalog-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        gap: 1.4rem;
+        margin-top: 0.5rem;
     }
 
-    .lista-header h2 {
-        font-size: 1.2rem;
+    .product-card {
+        background: var(--panel, #fff);
+        border: 1px solid #e2e8f0;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 14px 24px rgba(15, 23, 42, 0.06);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
-    .lista-stats {
-        flex-direction: column;
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 28px rgba(15, 23, 42, 0.09);
+    }
+
+    .product-card.out-of-stock {
+        border-color: #fecaca;
+        background: #fff8f8;
+    }
+
+    .product-image {
+        background: #f8fafc;
+        height: 180px;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .product-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .product-body {
+        padding: 1rem 1rem 1.1rem;
+    }
+
+    .product-category {
+        display: inline-block;
+        background: #e0f2fe;
+        color: #075985;
+        font-size: 0.74rem;
+        font-weight: 700;
+        padding: 0.3rem 0.7rem;
+        border-radius: 999px;
+        margin-bottom: 0.75rem;
+    }
+
+    .product-card h3 {
+        margin: 0 0 0.7rem;
+        font-size: 1.15rem;
+    }
+
+    .product-card h3 a {
+        color: var(--primary, #0f172a);
+        font-weight: 700;
+    }
+
+    .product-card h3 a:hover {
+        color: var(--secondary, #1d4ed8);
+    }
+
+    .product-meta {
+        display: flex;
+        justify-content: space-between;
         align-items: center;
         gap: 0.5rem;
+        margin-bottom: 0.8rem;
     }
 
-    .lista-stats span {
-        width: 100%;
+    .product-price {
+        color: #15803d;
+        font-weight: 800;
+        font-size: 1.15rem;
+    }
+
+    .product-stock {
+        background: #ecfdf5;
+        color: #166534;
+        border-radius: 999px;
+        padding: 0.3rem 0.6rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .product-card.out-of-stock .product-stock {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .product-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 0.8rem;
+    }
+
+    .mini-btn {
+        display: inline-flex;
+        align-items: center;
         justify-content: center;
-        font-size: 0.85rem;
-        padding: 0.3rem 0.8rem;
+        border-radius: 10px;
+        padding: 0.55rem 0.75rem;
+        font-size: 0.82rem;
+        font-weight: 700;
+        transition: transform 0.2s ease;
     }
-}
 
-    </style>
-    
+    .mini-btn:hover {
+        transform: translateY(-1px);
+    }
 
-<div class="lista-stats">
-        <span class="total"><strong>{{ total }}</strong> registros</span>
-        <span class="disponibles"><strong>{{ disponibles }}</strong> con stock</span>
+    .edit-btn {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .delete-btn {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .empty-state {
+        background: #fff;
+        border: 1px dashed #cbd5e1;
+        border-radius: 18px;
+        padding: 2rem;
+        text-align: center;
+        color: var(--muted, #64748b);
+        font-weight: 600;
+    }
+
+    @media (max-width: 700px) {
+        .catalog-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .catalog-stats {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="catalog-shell">
+    <div class="catalog-header">
+        <h2>Listado completo de herramientas</h2>
+        {% if request.session.es_admin %}
+            <a href="{% url 'crear_herramienta' %}" class="btn-primary">➕ Crear herramienta</a>
+        {% endif %}
     </div>
-</div>
-    <table>
-        {% if request.session.es_admin %}<p>Visitas al catálogo: {{ visitas }}</p>
-        <hr>
 
+    <div class="catalog-stats">
+        <div class="stat-card">
+            <span>Total</span>
+            <strong>{{ total }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Con stock</span>
+            <strong>{{ disponibles }}</strong>
+        </div>
+    </div>
+
+    {% if request.session.es_admin %}
+        <div class="catalog-panel">
+            <h3>Visitas al catálogo: {{ visitas }}</h3>
             <h3>Últimos productos vistos</h3>
-
             <ul>
                 {% for producto in ultimos %}
                     <li>{{ producto }}</li>
@@ -204,75 +296,44 @@ table tr[style] {
                     <li>No hay productos vistos aún.</li>
                 {% endfor %}
             </ul>
-        
-        {% endif %}
+        </div>
+    {% endif %}
 
-        <thead>
-            <tr>
-                <th>Nombre</th>
-                <th>Categoría</th>
-                <th>Precio</th>
-                <th>Stock</th>
-                <th>Marca</th>
-                <th>Foto</th>
-
-                {% if request.session.es_admin %}
-                <th>Acciones</th>
-                {% endif %}
-            </tr>
-        </thead>
-        
-
-        <tbody>
-            {% for herramienta in herramientas %}
-            <tr {% if herramienta.stock == 0 %} style="background-color:#f8d7da;" {% endif %}>
-
-                <td>
-                    <a href="{% url 'detalle_herramienta' herramienta.id %}">
-                        {{ herramienta.nombre }}
-                    </a>
-                </td>
-                
-
-                <td>{{ herramienta.categoria }}</td>
-
-                <td>${{ herramienta.precio }}</td>
-
-                <td>
-                    {% if herramienta.stock > 0 %}
-                        {{ herramienta.stock }}
-                    {% else %}
-                        <strong>Sin stock</strong>
+    <div class="catalog-grid">
+        {% for herramienta in herramientas %}
+            <article class="product-card {% if herramienta.stock == 0 %}out-of-stock{% endif %}">
+                <div class="product-image">
+                    <img src="{{ herramienta.imagen }}" alt="{{ herramienta.nombre }}">
+                </div>
+                <div class="product-body">
+                    <span class="product-category">{{ herramienta.categoria }}</span>
+                    <h3>
+                        <a href="{% url 'detalle_herramienta' herramienta.id %}">{{ herramienta.nombre }}</a>
+                    </h3>
+                    <div class="product-meta">
+                        <span class="product-price">${{ herramienta.precio }}</span>
+                        <span class="product-stock">
+                            {% if herramienta.stock > 0 %}
+                                {{ herramienta.stock }} uds
+                            {% else %}
+                                Sin stock
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="product-meta">
+                        <span style="color: var(--muted, #64748b); font-size: 0.85rem; font-weight: 600;">Marca: {{ herramienta.marca }}</span>
+                    </div>
+                    {% if request.session.es_admin %}
+                        <div class="product-actions">
+                            <a href="{% url 'editar_herramienta' herramienta.id %}" class="mini-btn edit-btn">✏️ Editar</a>
+                            <a href="{% url 'eliminar_herramienta' herramienta.id %}" class="mini-btn delete-btn">🗑️ Eliminar</a>
+                        </div>
                     {% endif %}
-                </td>
-
-                <td>{{ herramienta.marca }}</td>
-
-                <td>
-                    <img src="{{ herramienta.imagen }}"
-                        alt="{{ herramienta.nombre }}"
-                        width="80">
-                </td>
-
-                {% if request.session.es_admin %}
-                <td>
-                    <a href="{% url 'editar_herramienta' herramienta.id %}">
-                        ✏️ Editar
-                    </a>
-
-                    <br><br>
-
-                    <a href="{% url 'eliminar_herramienta' herramienta.id %}">
-                        🗑️ Eliminar
-
-
-                    </a>
-                    
-                </td>
-                {% endif %}
-
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">No hay herramientas disponibles por el momento.</div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
