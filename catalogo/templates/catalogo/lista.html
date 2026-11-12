@@ -5,6 +5,11 @@
 {% block content %}
 <div class="lista-header">
     <h2>Listado completo de herramientas</h2>
+        {% if request.session.es_admin %}
+        <a href="{% url 'crear_herramienta' %}">
+            ➕ Crear herramienta
+        </a>
+        {% endif %}
     <style>
         /* Estilo general para la tabla convertida en grid */
 table {
@@ -195,19 +200,27 @@ table tr[style] {
                 <th>Stock</th>
                 <th>Marca</th>
                 <th>Foto</th>
+
+                {% if request.session.es_admin %}
+                <th>Acciones</th>
+                {% endif %}
             </tr>
         </thead>
+
         <tbody>
             {% for herramienta in herramientas %}
             <tr {% if herramienta.stock == 0 %} style="background-color:#f8d7da;" {% endif %}>
-    
+
                 <td>
                     <a href="{% url 'detalle_herramienta' herramienta.id %}">
                         {{ herramienta.nombre }}
                     </a>
                 </td>
+
                 <td>{{ herramienta.categoria }}</td>
+
                 <td>${{ herramienta.precio }}</td>
+
                 <td>
                     {% if herramienta.stock > 0 %}
                         {{ herramienta.stock }}
@@ -215,10 +228,29 @@ table tr[style] {
                         <strong>Sin stock</strong>
                     {% endif %}
                 </td>
+
                 <td>{{ herramienta.marca }}</td>
+
                 <td>
-                    <img src="{{ herramienta.imagen }}" alt="{{ herramienta.nombre }}" width="80">
+                    <img src="{{ herramienta.imagen }}"
+                        alt="{{ herramienta.nombre }}"
+                        width="80">
                 </td>
+
+                {% if request.session.es_admin %}
+                <td>
+                    <a href="{% url 'editar_herramienta' herramienta.id %}">
+                        ✏️ Editar
+                    </a>
+
+                    <br><br>
+
+                    <a href="{% url 'eliminar_herramienta' herramienta.id %}">
+                        🗑️ Eliminar
+                    </a>
+                </td>
+                {% endif %}
+
             </tr>
             {% endfor %}
         </tbody>

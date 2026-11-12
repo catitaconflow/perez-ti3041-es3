@@ -1,0 +1,26 @@
+{% extends "catalogo/base.html" %}
+
+{% block title %}Eliminar herramienta{% endblock %}
+
+{% block content %}
+
+<h2>Eliminar herramienta</h2>
+
+<p>
+    ¿Seguro que deseas eliminar
+    <strong>{{ herramienta.nombre }}</strong>?
+</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    <button type="submit">
+        Sí, eliminar
+    </button>
+
+    <a href="{% url 'listado_herramientas' %}">
+        Cancelar
+    </a>
+</form>
+
+{% endblock %}

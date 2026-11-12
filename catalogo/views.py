@@ -1,18 +1,60 @@
-from django.shortcuts import render
-
 # Create your views here.
 from django.http import HttpResponse
 
 def index(request):
-    return HttpResponse("Hola, esta es la app catálogo.")
+    return redirect("herramientas")
 
 import json
-from django.shortcuts import render
 from django.http import HttpResponseNotFound
 from pathlib import Path
+from django.shortcuts import render, redirect
+
 
 # catalogo/views.py
 from .models import Herramienta
+from django.shortcuts import get_object_or_404
+from .forms import HerramientaForm # Asegúrate de tener tu form creado
+
+# --- ETAPA 1: CRUD DESDE LA WEB (Conectado a la BD) ---
+
+
+def crear_herramienta(request):
+
+    if not request.session.get("es_admin"):
+        return redirect("login")
+
+    if request.method == "POST":
+        form = HerramientaForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('listado_herramientas') # Redirige al listado principal tras crear
+    else:
+        form = HerramientaForm()
+    return render(request, "catalogo/herramienta_form.html", {"form": form})
+
+def editar_herramienta(request, pk):
+    if not request.session.get("es_admin"):
+        return redirect("login")
+
+    herramienta = get_object_or_404(Herramienta, pk=pk)
+    if request.method == "POST":
+        form = HerramientaForm(request.POST, instance=herramienta)
+        if form.is_valid():
+            form.save()
+            return redirect('listado_herramientas') # Redirige al listado principal tras editar
+    else:
+        form = HerramientaForm(instance=herramienta)
+    return render(request, "catalogo/herramienta_form.html", {"form": form})
+
+def eliminar_herramienta(request, pk):
+    if not request.session.get("es_admin"):
+        return redirect("login")
+
+    herramienta = get_object_or_404(Herramienta, pk=pk)
+    if request.method == "POST":
+        herramienta.delete()
+        return redirect('listado_herramientas') # Redirige al listado principal tras eliminar
+    return render(request, "catalogo/herramienta_confirm_delete.html", {"herramienta": herramienta})
 
 def listado_herramientas(request):
     # Consulta todos los registros desde la BD
@@ -42,18 +84,19 @@ def detalle_herramienta(request, id):
     return render(request, "catalogo/detalle.html", {"herramienta": herramienta})
 
 
-from django.shortcuts import render, redirect
-
 def login_view(request):
     mensaje = None
+
     if request.method == "POST":
         username = request.POST.get("username")
         password = request.POST.get("password")
+
         if username == "cata" and password == "1234":
             request.session["usuario"] = username
+            request.session["es_admin"] = True
             return redirect("herramientas")
-        else:
-            mensaje = "Credenciales inválidas"
+
+        mensaje = "Credenciales inválidas"
 
     return render(request, "catalogo/login.html", {"mensaje": mensaje})
 
