@@ -15,6 +15,9 @@ urlpatterns = [
     path('crear/', views.crear_herramienta, name='crear_herramienta'),
     path('editar/<int:pk>/', views.editar_herramienta, name='editar_herramienta'),
     path('eliminar/<int:pk>/', views.eliminar_herramienta, name='eliminar_herramienta'),
+    path("logout/", views.logout_view, name="logout"),
+    path("reporte-categoria/",views.reporte_categoria,name="reporte_categoria"),
+    path("reporte-stock/",views.reporte_stock,name="reporte_stock"),
     # rutas de detalle y carrito
 ]
 

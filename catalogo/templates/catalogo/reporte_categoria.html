@@ -1,0 +1,23 @@
+{% extends "catalogo/base.html" %}
+
+{% block content %}
+
+<h2>Reporte por categoría</h2>
+
+<table border="1">
+    <tr>
+        <th>Categoría</th>
+        <th>Cantidad</th>
+        <th>Promedio Precio</th>
+    </tr>
+
+    {% for item in reporte %}
+    <tr>
+        <td>{{ item.categoria }}</td>
+        <td>{{ item.cantidad }}</td>
+        <td>${{ item.promedio_precio|floatformat:0 }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

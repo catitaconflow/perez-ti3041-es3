@@ -15,6 +15,8 @@ from .models import Herramienta
 from django.shortcuts import get_object_or_404
 from .forms import HerramientaForm # Asegúrate de tener tu form creado
 
+from django.db.models import Count, Avg
+
 # --- ETAPA 1: CRUD DESDE LA WEB (Conectado a la BD) ---
 
 
@@ -100,6 +102,10 @@ def login_view(request):
 
     return render(request, "catalogo/login.html", {"mensaje": mensaje})
 
+def logout_view(request):
+    request.session.flush()
+    return redirect("herramientas")
+
 import json
 from pathlib import Path
 from django.shortcuts import render, redirect
@@ -133,6 +139,39 @@ def agregar_carrito(request, id):
         request.session["carrito"] = carrito
     return redirect("ver_carrito")
 
+
+#reportes
+
+def reporte_categoria(request):
+
+    if not request.session.get("es_admin"):
+        return redirect("login")
+
+    reporte = Herramienta.objects.values("categoria").annotate(
+        cantidad=Count("id"),
+        promedio_precio=Avg("precio")
+    )
+
+    return render(
+        request,
+        "catalogo/reporte_categoria.html",
+        {"reporte": reporte}
+    )
+
+def reporte_stock(request):
+
+    if not request.session.get("es_admin"):
+        return redirect("login")
+
+    herramientas = Herramienta.objects.filter(
+        stock__lt=10
+    ).order_by("stock")
+
+    return render(
+        request,
+        "catalogo/reporte_stock.html",
+        {"herramientas": herramientas}
+    )
 
 # Carrito: ver contenido
 

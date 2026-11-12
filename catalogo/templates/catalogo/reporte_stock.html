@@ -1,0 +1,21 @@
+{% extends "catalogo/base.html" %}
+
+{% block content %}
+
+<h2>Stock crítico</h2>
+
+<table border="1">
+    <tr>
+        <th>Nombre</th>
+        <th>Stock</th>
+    </tr>
+
+    {% for herramienta in herramientas %}
+    <tr>
+        <td>{{ herramienta.nombre }}</td>
+        <td>{{ herramienta.stock }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+{% endblock %}

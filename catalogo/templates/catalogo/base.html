@@ -428,6 +428,9 @@ footer p::before {
             <a href="{% url 'herramientas' %}">Listado</a>
             <a href="{% url 'login' %}">Login</a>
             <a href="{% url 'ver_carrito' %}">Carrito 🛒</a>
+            {% if request.session.es_admin %}<a href="{% url 'logout' %}">Cerrar sesión</a>{% endif %}
+            {% if request.session.es_admin %}<a href="{% url 'reporte_categoria' %}">Reporte Categorías</a>{% endif %}
+            {% if request.session.es_admin %}<a href="{% url 'reporte_stock' %}">Stock Crítico</a>{% endif %}
 
         </nav>
     </header>
